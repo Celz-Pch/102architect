@@ -2,8 +2,13 @@
 import sys
 import math
 
+def fmt(val):
+    if abs(val) < 0.01:
+        val = 0.0
+    return f"{val:.2f}"
+
 def translation_matrix(i, j):
-    print(f"Translation along vector ({i}, {j})")
+    print(f"Translation along vector ({i:.0f}, {j:.0f})")
     return [
         [1, 0, i],
         [0, 1, j],
@@ -11,7 +16,7 @@ def translation_matrix(i, j):
     ]
 
 def scaling_matrix(m, n):
-    print(f"Scaling by factors {m} and {n}")
+    print(f"Scaling by factors {m:.0f} and {n:.0f}")
     return [
         [m, 0, 0],
         [0, n, 0],
@@ -19,7 +24,7 @@ def scaling_matrix(m, n):
     ]
 
 def rotation_matrix(angle):
-    print(f"Rotation by a {angle} degree angle")
+    print(f"Rotation by a {angle:.0f} degree angle")
     rad = math.radians(angle)
     return [
         [math.cos(rad), -math.sin(rad), 0],
@@ -28,14 +33,13 @@ def rotation_matrix(angle):
     ]
 
 def reflection_matrix(angle):
-    print(f"Reflection over an axis with an inclination angle of {angle} degrees")
+    print(f"Reflection over an axis with an inclination angle of {angle:.0f} degrees")
     rad = math.radians(2 * angle)
     return [
         [math.cos(rad), math.sin(rad), 0],
         [math.sin(rad), -math.cos(rad), 0],
         [0, 0, 1]
     ]
-
 
 def multiply_matrices(a, b):
     res = [[0]*3 for _ in range(3)]
@@ -45,23 +49,25 @@ def multiply_matrices(a, b):
     return res
 
 def apply_matrix(matrix, x, y):
-    result = [
+    return [
         matrix[0][0]*x + matrix[0][1]*y + matrix[0][2],
         matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]
     ]
-    return result
 
 def print_matrix(matrix):
     for row in matrix:
-        print(f"{row[0]:.2f}\t{row[1]:.2f}\t{row[2]:.2f}")
+        print(f"{fmt(row[0])}\t{fmt(row[1])}\t{fmt(row[2])}")
 
 def main():
     if len(sys.argv) < 4:
-        print("help")
         exit(84)
 
-    x = float(sys.argv[1])
-    y = float(sys.argv[2])
+    try:
+        x = float(sys.argv[1])
+        y = float(sys.argv[2])
+    except ValueError:
+        exit(84)
+
     args = sys.argv[3:]
 
     final_matrix = [
@@ -73,17 +79,47 @@ def main():
     i = 0
     while i < len(args):
         if args[i] == "-t":
-            matrix = translation_matrix(float(args[i+1]), float(args[i+2]))
+            if i + 2 >= len(args):
+                exit(84)
+            try:
+                a = float(args[i+1])
+                b = float(args[i+2])
+            except ValueError:
+                exit(84)
+            matrix = translation_matrix(a, b)
             i += 3
+
         elif args[i] == "-z":
-            matrix = scaling_matrix(float(args[i+1]), float(args[i+2]))
+            if i + 2 >= len(args):
+                exit(84)
+            try:
+                a = float(args[i+1])
+                b = float(args[i+2])
+            except ValueError:
+                exit(84)
+            matrix = scaling_matrix(a, b)
             i += 3
+
         elif args[i] == "-r":
-            matrix = rotation_matrix(float(args[i+1]))
+            if i + 1 >= len(args):
+                exit(84)
+            try:
+                ang = float(args[i+1])
+            except ValueError:
+                exit(84)
+            matrix = rotation_matrix(ang)
             i += 2
+
         elif args[i] == "-s":
-            matrix = reflection_matrix(float(args[i+1]))
+            if i + 1 >= len(args):
+                exit(84)
+            try:
+                ang = float(args[i+1])
+            except ValueError:
+                exit(84)
+            matrix = reflection_matrix(ang)
             i += 2
+
         else:
             exit(84)
 
@@ -91,7 +127,7 @@ def main():
 
     print_matrix(final_matrix)
     result = apply_matrix(final_matrix, x, y)
-    print(f"({x:.2f}, {y:.2f}) => ({result[0]:.2f}, {result[1]:.2f})")
+    print(f"({fmt(x)}, {fmt(y)}) => ({fmt(result[0])}, {fmt(result[1])})")
 
 if __name__ == "__main__":
     main()
